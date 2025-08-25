@@ -13,7 +13,7 @@ if __name__ == "__main__":
     scenarios = get_scenarios()
     '''
         This will run the GA for all scenarios.
-        To run the GA for only one scenario, replace for scenario in [scenario] with scenario = scenarios[0]  # or any index 0-5
+        To run the GA for only one scenario, replace "for scenario in [scenario]" with "scenario = scenarios[0]"  # or any index 0-5
     '''
     for scenario in scenarios:
         print(f"\nRunning GA for scenario: {scenario['name']}")

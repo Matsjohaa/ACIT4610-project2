@@ -5,9 +5,10 @@ from src.data_gen import make_default_instances
 from src.distances import distance_matrix
 from src.validate import validate_instance
 from src.split import equal_split, dp_optimal_split
-from src.fitness import total_distance_from_perm, fitness_maximizing
+from src.fitness import total_distance_from_perm
 from src.ga import evolve
 from src.constants import GA_PRESETS
+from src.visualize import compare_solutions
 
 ROOT = Path(__file__).resolve().parent
 DATA_DIR = ROOT / 'data' / 'instances'
@@ -25,7 +26,7 @@ def demo_splits():
     M = distance_matrix(inst.depot, inst.customers)
     validate_instance(M, len(inst.customers))
 
-    perm = list(range(1, len(inst.customers) + 1))  # простая пермутация
+    perm = list(range(1, len(inst.customers) + 1))  # simple permutation
     d_equal = total_distance_from_perm(perm, inst.n_vehicles, M, equal_split)
     d_dp = total_distance_from_perm(perm, inst.n_vehicles, M, dp_optimal_split)
     print(f"[{inst.name}] vehicles={inst.n_vehicles} customers={len(inst.customers)}")
@@ -34,7 +35,6 @@ def demo_splits():
 
 
 def demo_ga():
-    # Мини-демо GA на small_01 с пресетом 'fast' (быстро и недорого)
     rng = random.Random(42)
     inst_path = DATA_DIR / 'small_01.json'
     inst = load_instance(inst_path)
@@ -52,6 +52,13 @@ def demo_ga():
     )
     print("\nGA demo (fast preset):")
     print("  best_fitness =", round(best_fit, 6))
+
+    # Decode the best permutation into routes
+    routes_eq = equal_split(list(range(1, len(inst.customers)+1)), inst.n_vehicles)
+    routes_ga = dp_optimal_split(best_ind, inst.n_vehicles, M)
+
+    # Visualize side-by-side
+    compare_solutions(inst, routes_eq, routes_ga, "Equal split", "GA Best")
 
 
 if __name__ == '__main__':

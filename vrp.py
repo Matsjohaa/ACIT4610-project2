@@ -1,6 +1,7 @@
 from scenarios import get_scenarios
 from ga import VRPGenetic
 import random
+from visualisation import plot_vrp_map
 
 # GA parameters
 POP_SIZE = 50
@@ -13,8 +14,12 @@ if __name__ == "__main__":
     scenarios = get_scenarios()
     '''
         This will run the GA for all scenarios.
-        To run the GA for only one scenario, replace "for scenario in [scenario]" with "scenario = scenarios[0]"  # or any index 0-5
+        To run the GA for only one scenario, replace line 22:
+        "for scenario in scenarios" 
+        with
+        "scenario = scenarios[0]" or any index 0-5
     '''
+
     for scenario in scenarios:
         print(f"\nRunning GA for scenario: {scenario['name']}")
         vrp = VRPGenetic(scenario)
@@ -43,3 +48,5 @@ if __name__ == "__main__":
         print("Best solution found:")
         print(best_solution)
         print(f"Total distance: {best_fitness:.2f}")
+        # Visualize and save the map for this scenario
+        plot_vrp_map(scenario['depot'], scenario['customers'], best_solution, scenario['name'])

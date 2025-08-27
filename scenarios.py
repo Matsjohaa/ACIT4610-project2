@@ -5,8 +5,23 @@ from typing import List, Tuple, Dict
 Location = Tuple[float, float]
 Scenario = Dict[str, any]
 
-# the generation of customer locations is generated every time script is run. uncomment this for reproducible results
-# random.seed(42)
+
+def get_scenarios() -> List[Scenario]:
+    # Set a local random seed for reproducible scenarios only
+    state = random.getstate()
+    random.seed(42)
+    scenarios = []
+    # Small: 2-10 vehicles, 10-20 customers
+    scenarios.append(generate_scenario("small_1", 3, 12))
+    scenarios.append(generate_scenario("small_2", 7, 18))
+    # Medium: 11-25 vehicles, 15-30 customers
+    scenarios.append(generate_scenario("medium_1", 12, 20))
+    scenarios.append(generate_scenario("medium_2", 20, 28))
+    # Large: 26-50 vehicles, 20-50 customers
+    scenarios.append(generate_scenario("large_1", 30, 35))
+    scenarios.append(generate_scenario("large_2", 45, 48))
+    random.setstate(state)
+    return scenarios
 
 def generate_customers(num_customers: int, xlim: Tuple[int, int], ylim: Tuple[int, int]) -> List[Location]:
     return [
@@ -30,18 +45,6 @@ def generate_scenario(
         "num_vehicles": num_vehicles
     }
 
-def get_scenarios() -> List[Scenario]:
-    scenarios = []
-    # Small: 2-10 vehicles, 10-20 customers
-    scenarios.append(generate_scenario("small_1", 3, 12))
-    scenarios.append(generate_scenario("small_2", 7, 18))
-    # Medium: 11-25 vehicles, 15-30 customers
-    scenarios.append(generate_scenario("medium_1", 12, 20))
-    scenarios.append(generate_scenario("medium_2", 20, 28))
-    # Large: 26-50 vehicles, 20-50 customers
-    scenarios.append(generate_scenario("large_1", 30, 35))
-    scenarios.append(generate_scenario("large_2", 45, 48))
-    return scenarios
 
 
 # if this script is run, the scenarios will be generated with customer locations

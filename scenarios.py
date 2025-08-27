@@ -9,6 +9,7 @@ Scenario = Dict[str, any]
 def get_scenarios() -> List[Scenario]:
     # Set a local random seed for reproducible scenarios only
     state = random.getstate()
+    #remove this for new map every time
     random.seed(42)
     scenarios = []
     # Small: 2-10 vehicles, 10-20 customers

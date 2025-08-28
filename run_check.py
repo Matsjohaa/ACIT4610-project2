@@ -31,15 +31,19 @@ def demo_splits() -> None:
     d_equal = total_distance_from_perm(perm, inst.n_vehicles, M, equal_split)
     d_dp = total_distance_from_perm(perm, inst.n_vehicles, M, dp_optimal_split)
 
-    print_rule()
-    print_kv("Instance", f"{inst.name}  |  vehicles={inst.n_vehicles}  customers={len(inst.customers)}")
+    # NEW: capacity-feasible baseline on the same trivial permutation
+    demands = [c.demand for c in inst.customers]
+    routes_cap = dp_split_capacity(perm, inst.n_vehicles, M, demands, inst.capacity)
+    d_dp_cap = sum(route_length(r, M) for r in routes_cap)
+
     print_table(
         header=["Split", "Total distance"],
         rows=[
-            ["equal_split", f"{d_equal:.2f}"],
-            ["dp_optimal_split", f"{d_dp:.2f}"],
+            ["equal_split - naive", f"{d_equal:.2f}"],
+            ["dp_optimal_split (no cap) - exact DP ignoring capacity (can overload vehicles)", f"{d_dp:.2f}"],
+            ["dp_split_capacity (cap) - exact DP with capacity constraint", f"{d_dp_cap:.2f}"],  # compare GA vs this
         ],
-        widths=[18, 16],
+        widths=[28, 16],
     )
 
 
@@ -72,7 +76,7 @@ def demo_ga_with_metrics() -> None:
     demands = [c.demand for c in inst.customers]
     total_dem = sum(demands)
     routes_ga = dp_split_capacity(best_ind, inst.n_vehicles, M, demands, inst.capacity)
-    validate_capacity(routes_ga, demands, inst.capacity)  # will raise if something slipped
+    validate_capacity(routes_ga, demands, inst.capacity)
     loads = [sum(demands[i - 1] for i in r) for r in routes_ga]
     used = sum(1 for r in routes_ga if r)
     best_dist = sum(route_length(r, M) for r in routes_ga)
@@ -98,11 +102,20 @@ def demo_ga_with_metrics() -> None:
         widths=[16, 16],
     )
 
-    # Baseline for side-by-side visualization
-    routes_eq = equal_split(list(range(1, len(inst.customers) + 1)), inst.n_vehicles)
+    min_segs_ga = min_segments_for_perm(best_ind, demands, inst.capacity)
+    print_kv("Min segments for GA best", f"{min_segs_ga}/{inst.n_vehicles}")
+
+    identity_perm = list(range(1, len(inst.customers) + 1))
+    routes_baseline = dp_split_capacity(identity_perm, inst.n_vehicles, M, demands, inst.capacity)
 
     # Visualize
-    compare_solutions(inst, routes_eq, routes_ga, "Equal split", "GA Best (capacity-feasible)")
+    compare_solutions(
+        inst,
+        routes_a=routes_baseline,
+        routes_b=routes_ga,
+        title_a="DP split (capacity-feasible, identity order)",
+        title_b="GA Best (capacity-feasible)",
+    )
     plot_convergence(info["fitness_history"], title=f"Convergence ({preset_name})")
 
     # Save CSV outputs
@@ -122,6 +135,20 @@ def demo_ga_with_metrics() -> None:
         evals_per_sec=info["evaluations"] / info["runtime_s"] if info["runtime_s"] > 0 else float("nan"),
     )
     save_metrics_csv(RESULTS / f"metrics_{inst.name}.csv", [metrics_row])
+
+def min_segments_for_perm(perm, demands, capacity):
+    n = len(perm)
+    INF = 10 ** 9
+    dp = [INF] * (n + 1)
+    dp[0] = 0
+    for j in range(1, n + 1):
+        s = 0
+        for i in range(j, 0, -1):
+            s += demands[perm[i - 1] - 1]
+            if s > capacity:
+                break
+            dp[j] = min(dp[j], dp[i - 1] + 1)
+    return dp[n]
 
 
 if __name__ == "__main__":

@@ -1,5 +1,5 @@
 # Decode a permutation into ≤ n_vehicles routes.
-from typing import List, Sequence, Callable
+from typing import List, Sequence
 import numpy as np
 from .constants import SPLIT_METHOD
 

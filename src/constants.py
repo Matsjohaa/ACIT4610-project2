@@ -1,5 +1,5 @@
-
 from pathlib import Path
+
 # ============================================================
 # Genetic Algorithm configuration
 # ============================================================
@@ -13,12 +13,12 @@ CROSSOVER_METHOD: str = "OX"
 
 # GA parameter presets (population size, generations, probabilities)
 GA_PRESETS = {
-    'fast':     {'pop_size': 40,  'generations': 120, 'pc': 0.9,  'pm': 0.10},
-    'balanced': {'pop_size': 80,  'generations': 300, 'pc': 0.9,  'pm': 0.08},
+    'fast': {'pop_size': 40, 'generations': 120, 'pc': 0.9, 'pm': 0.10},
+    'balanced': {'pop_size': 80, 'generations': 300, 'pc': 0.9, 'pm': 0.08},
     'thorough': {'pop_size': 120, 'generations': 600, 'pc': 0.95, 'pm': 0.05},
 }
 
-GA_ACTIVE_PRESET = "balanced"
+GA_ACTIVE_PRESET = "thorough"
 
 # ============================================================
 # Demand / capacity generation configuration
@@ -37,9 +37,9 @@ TARGET_UTIL = 0.7
 
 # Customer categories (small, medium, large) with ranges
 CATEGORIES = {
-    'small':  {'n_customers_range': (10, 20), 'n_vehicles_range': (2, 10)},
+    'small': {'n_customers_range': (10, 20), 'n_vehicles_range': (2, 10)},
     'medium': {'n_customers_range': (15, 30), 'n_vehicles_range': (11, 25)},
-    'large':  {'n_customers_range': (20, 50), 'n_vehicles_range': (26, 50)},
+    'large': {'n_customers_range': (20, 50), 'n_vehicles_range': (26, 50)},
 }
 
 # Coordinate range for randomly generating depot and customer locations
@@ -48,16 +48,16 @@ XY_RANGE = (0.0, 100.0)
 # Specification of the 6 default instances:
 # (Name, Category, Seed, Number of customers, Number of vehicles)
 INSTANCE_SPECS = [
-    ('small_01',  'small',  13,  12,  4),
-    ('small_02',  'small',  18,  18,  7),
-    ('medium_01', 'medium', 22,  20, 14),
-    ('medium_02', 'medium', 28,  26, 20),
-    ('large_01',  'large',  35,  30, 30),
-    ('large_02',  'large',  48,  45, 45),
+    ('small_01', 'small', 13, 12, 4),
+    ('small_02', 'small', 18, 18, 7),
+    ('medium_01', 'medium', 22, 20, 14),
+    ('medium_02', 'medium', 28, 26, 20),
+    ('large_01', 'large', 35, 30, 30),
+    ('large_02', 'large', 48, 45, 45),
 ]
 ROOT = Path(__file__).resolve().parent
 DATA_DIR = ROOT / "data" / "instances"
-CURRENT_INSTANCE = (DATA_DIR /'medium_01.json')
+CURRENT_INSTANCE = (DATA_DIR / 'large_01.json')
 
 # ============================================================
 # Mutation configuration

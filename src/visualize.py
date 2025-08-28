@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 from .models import VRPInstance, Solution
 from typing import Iterable
 
+
 def plot_points(inst: VRPInstance, ax=None):
     """
     Plot the depot and all customer points (without drawing routes).
@@ -89,7 +90,7 @@ def print_rule(width: int = 72) -> None:
     print("─" * width)
 
 
-def print_kv(label: str, value, width: int = 72, sep: str = ": ") -> None:
+def print_kv(label: str, value, sep: str = ": ") -> None:
     """Print a left-aligned key–value line."""
     left = f"{label}{sep}"
     print(f"{left:<28}{value}")

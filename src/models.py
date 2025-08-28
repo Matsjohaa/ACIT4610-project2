@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List, Tuple, Literal, Dict
+from typing import List, Literal
 
 SizeCategory = Literal['small', 'medium', 'large']
 Route = List[int]

@@ -13,20 +13,19 @@ def evolve(dataset_name):
         elite = population.get_best_solution()
         new_population.append(elite)
 
+        avg_fitness = sum(sol.fitness() for sol in population.solutions) / len(population.solutions)
+
         while len(new_population) < POPULATION_SIZE:
-            # Tournament selection
             parent1 = tournament_selection(population)
             parent2 = tournament_selection(population)
 
-            # Crossover + Mutation
             child = route_based_crossover(parent1, parent2, elite.routes[0].depot)
             child = mutate(child, MUTATION_RATE)
             new_population.append(child)
 
-        # Replace old with new
         population.solutions = new_population
 
-        print(f"Gen {generation+1} Best Fitness: {elite.fitness():.4f}")
+        print(f"Gen {generation+1} | Best: {elite.fitness():.4f} | Avg: {avg_fitness:.4f}")
 
     return population.get_best_solution()
 

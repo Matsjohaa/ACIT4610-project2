@@ -81,6 +81,28 @@ def demo_ga_with_metrics() -> None:
     used = sum(1 for r in routes_ga if r)
     best_dist = sum(route_length(r, M) for r in routes_ga)
 
+    # Baseline: DP split on identity permutation
+    identity_perm = list(range(1, len(inst.customers) + 1))
+    # Baseline A: DP split (no capacity)
+    routes_nocap = dp_optimal_split(identity_perm, inst.n_vehicles, M)
+    dist_nocap = sum(route_length(r, M) for r in routes_nocap)
+    used_nocap = sum(1 for r in routes_nocap if r)
+
+    print_kv("DP split (no cap) distance", f"{dist_nocap:.2f}")
+    print_kv("DP split (no cap) vehicles used", f"{used_nocap}/{inst.n_vehicles}")
+
+    # Baseline B: DP split (with capacity)
+    routes_cap = dp_split_capacity(identity_perm, inst.n_vehicles, M, demands, inst.capacity)
+    dist_cap = sum(route_length(r, M) for r in routes_cap)
+    used_cap = sum(1 for r in routes_cap if r)
+
+    print_kv("DP split (cap) distance", f"{dist_cap:.2f}")
+    print_kv("DP split (cap) vehicles used", f"{used_cap}/{inst.n_vehicles}")
+
+    # Improvement of GA compared to DP with cap
+    improvement_pct = 100 * (dist_cap - best_dist) / dist_cap
+    print_kv("Improvement over DP split (cap)", f"{improvement_pct:.2f}%")
+
     # Fancy console output
     print_rule()
     print_kv("GA preset", f"{preset_name} -> {params}")

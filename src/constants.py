@@ -18,7 +18,7 @@ GA_PRESETS = {
     'thorough': {'pop_size': 120, 'generations': 600, 'pc': 0.95, 'pm': 0.05},
 }
 
-GA_ACTIVE_PRESET = "thorough"
+GA_ACTIVE_PRESET = "balanced"
 
 # ============================================================
 # Demand / capacity generation configuration
@@ -57,7 +57,7 @@ INSTANCE_SPECS = [
 ]
 ROOT = Path(__file__).resolve().parent
 DATA_DIR = ROOT / "data" / "instances"
-CURRENT_INSTANCE = (DATA_DIR / 'large_01.json')
+CURRENT_INSTANCE = (DATA_DIR / 'large_02.json')
 
 # ============================================================
 # Mutation configuration

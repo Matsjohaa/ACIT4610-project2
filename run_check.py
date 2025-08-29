@@ -15,33 +15,100 @@ DATA_DIR = ROOT / "data" / "instances"
 RESULTS = ROOT / "results"
 
 
+def summarize_routes_legs(routes, M):
+    """
+    Return (legs, total_distance) where:
+      legs = list of strings like "u->v: d.dd"
+      total_distance = float
+    Only uses final routes passed in; NO per-iteration prints.
+    """
+    legs = []
+    total = 0.0
+    for r in routes:
+        if not r:
+            continue
+        prev = 0  # depot
+        for node in r:
+            d = M[prev, node]
+            legs.append(f"{prev}->{node}: {d:.2f}")
+            total += d
+            prev = node
+        d = M[prev, 0]  # back to depot
+        legs.append(f"{prev}->0: {d:.2f}")
+        total += d
+    return legs, total
+
+
+def print_routes_table(routes, M, title="Routes with legs"):
+    """
+    Print each route as a table: From | To | Distance.
+    Also prints per-route and total distance.
+    """
+    print(f"\n=== {title} ===")
+    total = 0.0
+    for ridx, r in enumerate(routes, start=1):
+        if not r:
+            continue
+        print(f"\nRoute #{ridx}: {r}")
+        print("  From | To | Dist")
+        print("  -----+----+------")
+        prev = 0  # depot
+        route_dist = 0.0
+        for node in r:
+            d = M[prev, node]
+            print(f"  {prev:>4} | {node:<2} | {d:>5.2f}")
+            route_dist += d
+            prev = node
+        back = M[prev, 0]
+        print(f"  {prev:>4} | {0:<2} | {back:>5.2f}")
+        route_dist += back
+        print(f"  Route distance = {route_dist:.2f}")
+        total += route_dist
+    print(f"\nTOTAL distance = {total:.2f}")
+    return total
+
+
+def print_legs_block(title, legs, total):
+    print(f"\n--- {title} (legs) ---")
+    print(", ".join(legs))
+    print(f"Total: {total:.2f}")
+
+
 # ---------- pipeline entry points ----------
 
 def demo_splits() -> None:
     """
-    Show baseline distances for a trivial permutation using two split strategies:
+    Show baseline distances for a trivial permutation (final-only leg breakdowns):
     - equal_split (uniform chunks)
-    - dp_optimal_split (DP, capacity-agnostic)
+    - dp_optimal_split (no capacity)
+    - dp_split_capacity (capacity-feasible)
     """
     inst = load_instance(CURRENT_INSTANCE)
     M = distance_matrix(inst.depot, inst.customers)
     validate_instance(M, len(inst.customers))
 
     perm = list(range(1, len(inst.customers) + 1))
-    d_equal = total_distance_from_perm(perm, inst.n_vehicles, M, equal_split)
-    d_dp = total_distance_from_perm(perm, inst.n_vehicles, M, dp_optimal_split)
-
-    # NEW: capacity-feasible baseline on the same trivial permutation
     demands = [c.demand for c in inst.customers]
-    routes_cap = dp_split_capacity(perm, inst.n_vehicles, M, demands, inst.capacity)
-    d_dp_cap = sum(route_length(r, M) for r in routes_cap)
 
+    # equal_split (табличный вывод)
+    routes_eq = equal_split(perm, inst.n_vehicles)
+    d_equal = print_routes_table(routes_eq, M, "equal_split - naive")
+
+    # dp_optimal_split (no cap)
+    routes_nocap = dp_optimal_split(perm, inst.n_vehicles, M)
+    d_dp = print_routes_table(routes_nocap, M, "dp_optimal_split (no cap)")
+
+    # dp_split_capacity (cap)
+    routes_cap = dp_split_capacity(perm, inst.n_vehicles, M, demands, inst.capacity)
+    d_dp_cap = print_routes_table(routes_cap, M, "dp_split_capacity (cap)")
+
+    # Summary table (как раньше)
     print_table(
         header=["Split", "Total distance"],
         rows=[
             ["equal_split - naive", f"{d_equal:.2f}"],
             ["dp_optimal_split (no cap) - exact DP ignoring capacity (can overload vehicles)", f"{d_dp:.2f}"],
-            ["dp_split_capacity (cap) - exact DP with capacity constraint", f"{d_dp_cap:.2f}"],  # compare GA vs this
+            ["dp_split_capacity (cap) - exact DP with capacity constraint", f"{d_dp_cap:.2f}"],
         ],
         widths=[28, 16],
     )
@@ -76,6 +143,10 @@ def demo_ga_with_metrics() -> None:
     demands = [c.demand for c in inst.customers]
     total_dem = sum(demands)
     routes_ga = dp_split_capacity(best_ind, inst.n_vehicles, M, demands, inst.capacity)
+
+    legs_ga, best_dist_check = summarize_routes_legs(routes_ga, M)
+    print_legs_block("GA Best (cap)", legs_ga, best_dist_check)
+
     validate_capacity(routes_ga, demands, inst.capacity)
     loads = [sum(demands[i - 1] for i in r) for r in routes_ga]
     used = sum(1 for r in routes_ga if r)
@@ -157,6 +228,7 @@ def demo_ga_with_metrics() -> None:
         evals_per_sec=info["evaluations"] / info["runtime_s"] if info["runtime_s"] > 0 else float("nan"),
     )
     save_metrics_csv(RESULTS / f"metrics_{inst.name}.csv", [metrics_row])
+
 
 def min_segments_for_perm(perm, demands, capacity):
     n = len(perm)

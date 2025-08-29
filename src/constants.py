@@ -57,7 +57,7 @@ INSTANCE_SPECS = [
 ]
 ROOT = Path(__file__).resolve().parent
 DATA_DIR = ROOT / "data" / "instances"
-CURRENT_INSTANCE = (DATA_DIR / 'large_02.json')
+CURRENT_INSTANCE = (DATA_DIR / 'small_02.json')
 
 # ============================================================
 # Mutation configuration

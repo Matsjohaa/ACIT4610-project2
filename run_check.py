@@ -9,6 +9,8 @@ from src.ga import evolve
 from src.constants import GA_PRESETS, GA_ACTIVE_PRESET, CURRENT_INSTANCE
 from src.visualize import compare_solutions, plot_convergence, print_rule, print_kv, print_table
 from src.metrics import GAMetrics, save_convergence_csv, save_metrics_csv
+from src.experiments import run_experiments
+import pandas as pd
 
 ROOT = Path(__file__).resolve().parent
 DATA_DIR = ROOT / "data" / "instances"
@@ -144,8 +146,7 @@ def demo_ga_with_metrics() -> None:
     total_dem = sum(demands)
     routes_ga = dp_split_capacity(best_ind, inst.n_vehicles, M, demands, inst.capacity)
 
-    legs_ga, best_dist_check = summarize_routes_legs(routes_ga, M)
-    print_legs_block("GA Best (cap)", legs_ga, best_dist_check)
+    best_dist_check = print_routes_table(routes_ga, M, "GA Best (cap)")
 
     validate_capacity(routes_ga, demands, inst.capacity)
     loads = [sum(demands[i - 1] for i in r) for r in routes_ga]
@@ -245,15 +246,26 @@ def min_segments_for_perm(perm, demands, capacity):
     return dp[n]
 
 
+# if __name__ == "__main__":
+#     """
+#     Entry point:
+#     1) Make sure instances exist and are readable
+#     2) Print baseline split distances
+#     3) Run GA, print metrics as a small table, visualize, and save CSVs
+#     """
+#     ensure_instances()
+#     demo_splits()
+#     demo_ga_with_metrics()
+#     print_rule()
+#     print("OK.")
+
+
 if __name__ == "__main__":
-    """
-    Entry point:
-    1) Make sure instances exist and are readable
-    2) Print baseline split distances
-    3) Run GA, print metrics as a small table, visualize, and save CSVs
-    """
     ensure_instances()
     demo_splits()
     demo_ga_with_metrics()
     print_rule()
-    print("OK.")
+    print("Running full experiment batch...")
+    results = run_experiments()
+    pd.DataFrame(results).to_csv("experiment_results.csv", index=False)
+    print("Saved experiment_results.csv")

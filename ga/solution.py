@@ -63,6 +63,7 @@ def create_random_solution(dataset_instance):
 
     return Solution(routes)
 
-#Example usage
+"""Example usage
 solution = create_random_solution("small_1")
 print(f"Fitness: {solution.fitness():.4f}")
+"""

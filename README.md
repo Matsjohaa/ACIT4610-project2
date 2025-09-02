@@ -12,7 +12,7 @@ A complete scaffold for solving the **Vehicle Routing Problem (VRP)** using a **
 ```text
 vrp_ga_skeleton_full/
 ├─ src/
-│  ├─ constants.py        # all constants and presets
+│  ├─ constants.py        # all constants and presets, customisable
 │  ├─ models.py           # dataclass VRPInstance, types
 │  ├─ io_utils.py         # I/O JSON/NPY
 │  ├─ distances.py        # euclidean distance, matrix, lengths
@@ -20,7 +20,7 @@ vrp_ga_skeleton_full/
 │  ├─ validate.py         # invariant checks
 │  ├─ split.py            # equal_split and dp_optimal_split
 │  ├─ fitness.py          # fitness wrappers
-│  ├─ crossover.py        # OX
+│  ├─ crossover.py        # OX, PMX and ERX
 │  ├─ mutation.py         # swap/inversion/insert
 │  └─ ga.py               # GA loop
 ├─ data/instances/        # JSON and .npy

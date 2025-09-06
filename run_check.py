@@ -246,26 +246,26 @@ def min_segments_for_perm(perm, demands, capacity):
     return dp[n]
 
 
-# if __name__ == "__main__":
-#     """
-#     Entry point:
-#     1) Make sure instances exist and are readable
-#     2) Print baseline split distances
-#     3) Run GA, print metrics as a small table, visualize, and save CSVs
-#     """
-#     ensure_instances()
-#     demo_splits()
-#     demo_ga_with_metrics()
-#     print_rule()
-#     print("OK.")
-
-
 if __name__ == "__main__":
+    """
+    Entry point:
+    1) Make sure instances exist and are readable
+    2) Print baseline split distances
+    3) Run GA, print metrics as a small table, visualize, and save CSVs
+    """
     ensure_instances()
     demo_splits()
     demo_ga_with_metrics()
     print_rule()
-    print("Running full experiment batch...")
-    results = run_experiments()
-    pd.DataFrame(results).to_csv("experiment_results.csv", index=False)
-    print("Saved experiment_results.csv")
+    print("OK.")
+
+
+# if __name__ == "__main__":
+#     ensure_instances()
+#     demo_splits()
+#     demo_ga_with_metrics()
+#     print_rule()
+#     print("Running full experiment batch...")
+#     results = run_experiments()
+#     pd.DataFrame(results).to_csv("experiment_results.csv", index=False)
+#     print("Saved experiment_results.csv")

@@ -1,7 +1,7 @@
 
 # VRP GA Skeleton (Full)
 
-A complete scaffold for solving the **Vehicle Routing Problem (VRP)** using a **Genetic Algorithm (GA)**.  
+A complete scaffold for solving the Vehicle Routing Problem (VRP) using a Genetic Algorithm (GA).  
 
 - **Representation**: a permutation of all customers (1..N), depot = 0 in the distance matrix.  
 - **Fitness**: the sum of route lengths after splitting the permutation into ≤ `n_vehicles` routes.  

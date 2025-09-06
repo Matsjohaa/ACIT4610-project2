@@ -6,7 +6,7 @@ A complete scaffold for solving the **Vehicle Routing Problem (VRP)** using a **
 - **Representation**: a permutation of all customers (1..N), depot = 0 in the distance matrix.  
 - **Fitness**: the sum of route lengths after splitting the permutation into ≤ `n_vehicles` routes.  
 - **Splitting**: uniform (*equal split*) and optimal (*DP*).  
-- **GA**: initialization, tournament selection, OX crossover, inversion mutation, elitism (keep-best).  
+- **GA**: initialization, tournament selection, OX crossover, swap mutation 
 
 ## Structure
 ```text

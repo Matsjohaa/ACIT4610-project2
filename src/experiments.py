@@ -9,9 +9,9 @@ from pathlib import Path
 
 from src.io_utils import load_instance
 from src.distances import distance_matrix, route_length
-from src.split import dp_split_capacity
+from src.split import equal_split, dp_optimal_split, dp_split_capacity
 
-N_RUNS = 5  # run each experiment multiple times
+N_RUNS = 10  # run each experiment multiple times
 ROOT = Path(__file__).resolve().parent
 DATA_DIR = ROOT / "data" / "instances"
 

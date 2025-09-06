@@ -65,7 +65,7 @@ CURRENT_INSTANCE = (DATA_DIR / 'small_02.json')
 
 # Which mutation operator to use by default
 # Options: "swap", "inversion", "insert"
-MUTATION_METHOD: str = "inversion"
+MUTATION_METHOD: str = "swap"
 
 # ============================================================
 # Split (decode permutation -> routes) configuration

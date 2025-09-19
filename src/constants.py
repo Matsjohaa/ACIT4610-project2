@@ -18,7 +18,7 @@ GA_PRESETS = {
     'thorough': {'pop_size': 120, 'generations': 600, 'pc': 0.95, 'pm': 0.05},
 }
 
-GA_ACTIVE_PRESET = "balanced"
+GA_ACTIVE_PRESET = "fast"
 
 # ============================================================
 # Demand / capacity generation configuration
@@ -57,7 +57,7 @@ INSTANCE_SPECS = [
 ]
 ROOT = Path(__file__).resolve().parent
 DATA_DIR = ROOT / "data" / "instances"
-CURRENT_INSTANCE = (DATA_DIR / 'small_02.json')
+CURRENT_INSTANCE = (DATA_DIR / 'large_02.json')
 
 # ============================================================
 # Mutation configuration
@@ -65,7 +65,7 @@ CURRENT_INSTANCE = (DATA_DIR / 'small_02.json')
 
 # Which mutation operator to use by default
 # Options: "swap", "inversion", "insert"
-MUTATION_METHOD: str = "inversion"
+MUTATION_METHOD: str = "swap"
 
 # ============================================================
 # Split (decode permutation -> routes) configuration

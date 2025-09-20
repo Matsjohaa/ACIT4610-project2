@@ -6,6 +6,7 @@ from pathlib import Path
 
 # Instance selection: set to a specific instance (e.g., "small_01") or "ALL" to iterate.
 INSTANCE_NAME: str = "large_01"
+
 # Active algorithm: options: "NSGA2", "VEGA"
 MOEA_ALGORITHM: str = "NSGA2"
 
@@ -22,7 +23,8 @@ MUTATION_METHOD: str = "swap"    # swap | inversion | insert
 
 
 # ============================================================
-# Split method (keep capacity-aware DP)
+# Split method, capacity is default and recommended
+# equal | dp | capacity 
 # ============================================================
 SPLIT_METHOD: str = "capacity"
 
@@ -50,6 +52,7 @@ MIXED_CROSSOVERS = ["OX", "PMX", "ERX"]
 PENALTY_OVERLOAD_ALPHA: float = 50.0
 
 # Balance objective variant: 'std' for standard deviation or 'cv' for coefficient of variation
+# std is default and recommended
 OBJECTIVE_BALANCE: str = "std"
 
 

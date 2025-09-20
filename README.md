@@ -36,9 +36,7 @@ results/              # Generated plots (Pareto + comparison)
 ---
 ### Quick Start
 ```bash
-## Activate virutal enviorment
-python -m venv .venv
-source .venv/bin/activate  # (macOS / Linux)
+## First, activate virutal enviorment...
 ## Download Dependencies
 pip install -r requirements.txt
 ## Start project

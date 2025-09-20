@@ -4,7 +4,7 @@ from pathlib import Path
 # Multi-Objective Evolutionary Algorithm (MOEA) configuration
 # ============================================================
 
-# Instance selection: set to a specific instance (e.g., "small_01") or "ALL" to iterate.
+# Instance selection: set to a specific instance (e.g., "small_01", ...) or "ALL" to iterate.
 INSTANCE_NAME: str = "large_02"
 
 # Active algorithm: options: "NSGA2", "VEGA"

@@ -5,6 +5,7 @@ from src.instances import load_instance, list_instances, InstanceData
 from src.split import dp_split_capacity
 from src.distances import route_length
 import math
+import time
 
 ROOT = Path(__file__).resolve().parent
 
@@ -100,6 +101,7 @@ def print_pareto(pareto, M, inst: InstanceData):
 
 
 if __name__ == "__main__":
+    start_time = time.time()
     names = list_instances() if INSTANCE_NAME.upper() == 'ALL' else [INSTANCE_NAME]
     for name in names:
         inst = load_instance(name)
@@ -117,7 +119,10 @@ if __name__ == "__main__":
             except Exception as e:
                 print(f"Plotting failed: {e}")
         print("---")
+    end_time = time.time()
+    runtime = end_time - start_time
     print("Finished.")
+    print(f"Total runtime: {runtime:.2f} seconds")
 
 
 # if __name__ == "__main__":

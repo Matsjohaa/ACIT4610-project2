@@ -37,6 +37,7 @@ results/              # Generated plots (Pareto + comparison)
 ### Quick Start
 ```bash
 ## First, activate virutal enviorment...
+
 ## Download Dependencies
 pip install -r requirements.txt
 ## Start project
@@ -58,11 +59,11 @@ python run_check.py
 
 ---
 ### Outputs
-Console (per instance):
+Per instance:
 - Header with instance + algorithm
 - Pareto set (objective tuple + permutation + decoded routes summary)
 
-Plots (if `ENABLE_PLOT = True`):
+Plots (if enabled in constants.py):
 - Pareto front scatter: distance vs std deviation (saved to `results/pareto_<instance>_<algo>.png`)
 - Route comparison: Best-distance vs best-std individual side-by-side with route counts (`results/routes_compare_<instance>_<algo>.png`)
 
@@ -72,13 +73,5 @@ Plots (if `ENABLE_PLOT = True`):
 - Near-horizontal spread: trade-offs where distance similar, balance varies.
 - Near-vertical spread: trade-offs where balance similar, distance varies.
 If the front is sparse, increase `POP_SIZE` or `GENERATIONS`, or raise diversity via `mixed` crossover + higher mutation / local search probability.
-
----
-### Extending
-- Add objective: modify `evaluate_individual` in `moea.py` and adjust dominance logic (tuples auto-expand).
-- Different balance metric: implement coefficient of variation (CV) and toggle with `OBJECTIVE_BALANCE`.
-- Soft capacity penalties: integrate `PENALTY_OVERLOAD_ALPHA` (currently not used—hard infeasible marking is applied instead).
-- Improve VEGA: Add elitism or hybrid NSGA-II replacement stage.
-- Export CSV: Iterate Pareto set and write objective + permutation + route breakdown (not yet implemented).
 
 

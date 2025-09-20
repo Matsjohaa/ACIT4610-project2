@@ -40,74 +40,11 @@ def plot_solution(inst: VRPInstance, routes: Solution, ax=None, title=None):
             continue
         col = colors(i)
 
-        # depot -> first customer
-        ax.plot([pts[0][0], pts[r[0]][0]], [pts[0][1], pts[r[0]][1]], c=col)
+        """Deprecated visualization module.
 
-        # between customers
-        for a, b in zip(r, r[1:]):
-            ax.plot([pts[a][0], pts[b][0]], [pts[a][1], pts[b][1]], c=col)
+        All previous plotting helpers removed. Use plot_utils.plot_pareto for
+        current visualization needs.
+        """
 
+        __all__: list[str] = []
         # last customer -> depot
-        ax.plot([pts[r[-1]][0], pts[0][0]], [pts[r[-1]][1], pts[0][1]],
-                c=col, label=f"Vehicle {i + 1}")
-
-    if title:
-        ax.set_title(title)
-    ax.set_xlabel("x")
-    ax.set_ylabel("y")
-    ax.legend()
-    return ax
-
-
-def compare_solutions(inst: VRPInstance, routes_a: Solution, routes_b: Solution,
-                      title_a="Baseline", title_b="GA Best"):
-    """
-    Plot two solutions side by side for visual comparison.
-    Left panel shows routes_a, right panel shows routes_b.
-    """
-    fig, axes = plt.subplots(1, 2, figsize=(12, 6))
-    plot_solution(inst, routes_a, ax=axes[0], title=title_a)
-    plot_solution(inst, routes_b, ax=axes[1], title=title_b)
-    plt.show()
-
-
-def plot_convergence(fitness_history: list[float], title: str | None = None):
-    """
-    Plot the convergence curve (best fitness over generations).
-    """
-    xs = list(range(1, len(fitness_history) + 1))
-    plt.figure()
-    plt.plot(xs, fitness_history)
-    plt.xlabel("Generation")
-    plt.ylabel("Best fitness")
-    if title:
-        plt.title(title)
-    plt.show()
-
-
-def print_rule(width: int = 72) -> None:
-    """Print a horizontal rule."""
-    print("─" * width)
-
-
-def print_kv(label: str, value, sep: str = ": ") -> None:
-    """Print a left-aligned key–value line."""
-    left = f"{label}{sep}"
-    print(f"{left:<28}{value}")
-
-
-def print_row(cols: Iterable[str], widths: Iterable[int]) -> None:
-    """Print a table row with fixed column widths."""
-    cells = []
-    for text, w in zip(cols, widths):
-        cells.append(f"{text:<{w}}")
-    print("  " + " | ".join(cells))
-
-
-def print_table(header: Iterable[str], rows: Iterable[Iterable[str]], widths: Iterable[int]) -> None:
-    """Print a simple text table: header + rows with column widths."""
-    print_row(header, widths)
-    # header underline
-    print_row(["-" * w for w in widths], widths)
-    for r in rows:
-        print_row(r, widths)

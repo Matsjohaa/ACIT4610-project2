@@ -1,2 +1,0 @@
-preset,instance,n_customers,n_vehicles,best_fitness,best_distance,runtime_s,generations,pop_size,evaluations,evals_per_sec
-fast,small_01,12,4,0.002173127554793947,459.1662694828876,0.11986170895397663,120,40,2440,20356.79301833489

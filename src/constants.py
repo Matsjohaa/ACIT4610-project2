@@ -1,78 +1,55 @@
 from pathlib import Path
 
 # ============================================================
-# Genetic Algorithm configuration
+# Multi-Objective Evolutionary Algorithm (MOEA) configuration
 # ============================================================
 
-# Number of parents in crossover (Default = 2)
-PARENTS_K: int = 2
+# Instance selection: set to a specific instance (e.g., "small_01") or "ALL" to iterate.
+INSTANCE_NAME: str = "large_01"
+# Active algorithm: options: "NSGA2", "VEGA"
+MOEA_ALGORITHM: str = "NSGA2"
 
-# Type of crossover used for folding multiple parents
-# Options: "OX", "PMX", "ERX"
-CROSSOVER_METHOD: str = "OX"
+# Population size & generations (shared for algorithms)
+POP_SIZE: int = 80
+GENERATIONS: int = 150
 
-# GA parameter presets (population size, generations, probabilities)
-GA_PRESETS = {
-    'fast': {'pop_size': 40, 'generations': 120, 'pc': 0.9, 'pm': 0.10},
-    'balanced': {'pop_size': 80, 'generations': 300, 'pc': 0.9, 'pm': 0.08},
-    'thorough': {'pop_size': 120, 'generations': 600, 'pc': 0.95, 'pm': 0.05},
-}
+# Variation parameters
+PARENTS_K: int = 2               # still using permutation-based crossover
+CROSSOVER_METHOD: str = "OX"     # OX | PMX | ERX | mixed 
+PC: float = 0.9                  # crossover probability
+PM: float = 0.1                  # mutation probability
+MUTATION_METHOD: str = "swap"    # swap | inversion | insert
 
-GA_ACTIVE_PRESET = "fast"
-
-# ============================================================
-# Demand / capacity generation configuration
-# ============================================================
-
-# Range of customer demand values (uniform random)
-DEMAND_RANGE = (5, 15)
-
-# Target fleet utilization (fraction of vehicles we want to be active)
-# Example: 0.7 → aim for ~70% of vehicles to be used
-TARGET_UTIL = 0.7
 
 # ============================================================
-# Instance generation configuration
+# Split method (keep capacity-aware DP)
 # ============================================================
+SPLIT_METHOD: str = "capacity"
 
-# Customer categories (small, medium, large) with ranges
-CATEGORIES = {
-    'small': {'n_customers_range': (10, 20), 'n_vehicles_range': (2, 10)},
-    'medium': {'n_customers_range': (15, 30), 'n_vehicles_range': (11, 25)},
-    'large': {'n_customers_range': (20, 50), 'n_vehicles_range': (26, 50)},
-}
-
-# Coordinate range for randomly generating depot and customer locations
-XY_RANGE = (0.0, 100.0)
-
-# Specification of the 6 default instances:
-# (Name, Category, Seed, Number of customers, Number of vehicles)
-INSTANCE_SPECS = [
-    ('small_01', 'small', 13, 12, 4),
-    ('small_02', 'small', 18, 18, 7),
-    ('medium_01', 'medium', 22, 20, 14),
-    ('medium_02', 'medium', 28, 26, 20),
-    ('large_01', 'large', 35, 30, 30),
-    ('large_02', 'large', 48, 45, 45),
-]
+# Root paths retained for potential future expansion (instances folder may be unused now)
 ROOT = Path(__file__).resolve().parent
 DATA_DIR = ROOT / "data" / "instances"
-CURRENT_INSTANCE = (DATA_DIR / 'large_02.json')
+
+# Optional plotting toggle
+ENABLE_PLOT: bool = True
 
 # ============================================================
-# Mutation configuration
+# Advanced tuning parameters (added for improved Pareto quality)
 # ============================================================
+# Probability to apply local search (e.g., 2-opt) to a child
+LOCAL_SEARCH_PROB: float = 0.4
 
-# Which mutation operator to use by default
-# Options: "swap", "inversion", "insert"
-MUTATION_METHOD: str = "swap"
+# Adaptive mutation toggle and floor value. If enabled, PM is scaled over generations
+ADAPTIVE_PM: bool = True
+PM_FLOOR: float = 0.02
 
-# ============================================================
-# Split (decode permutation -> routes) configuration
-# ============================================================
+# Allow mixing multiple crossover operators; if CROSSOVER_METHOD == "mixed" we randomly pick.
+MIXED_CROSSOVERS = ["OX", "PMX", "ERX"]
 
-# Which split method to use by default:
-# "equal"    -> equal sized chunks (baseline, capacity-agnostic)
-# "dp"       -> DP split minimizing distance (capacity-agnostic, ≤ n_vehicles)
-# "capacity" -> DP split enforcing per-route capacity (≤ n_vehicles)
-SPLIT_METHOD: str = "capacity"
+# Overload penalty coefficient for capacity violation (soft penalty vs. hard infeasible)
+PENALTY_OVERLOAD_ALPHA: float = 50.0
+
+# Balance objective variant: 'std' for standard deviation or 'cv' for coefficient of variation
+OBJECTIVE_BALANCE: str = "std"
+
+

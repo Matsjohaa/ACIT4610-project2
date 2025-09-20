@@ -1,64 +1,86 @@
+## Multi-Objective CVRP (NSGA-II / VEGA)
 
-# Multi-Objective CVRP (NSGA-II / VEGA)
+Multi-objective evolutionary optimization for the Capacitated Vehicle Routing Problem (CVRP) with NSGA-ll and VEGA
 
-This project has been refactored from a single-objective GA for VRP into a multi-objective evolutionary framework for the Capacitated Vehicle Routing Problem (CVRP).
+---
+### Objectives
+For a solution with routes R = {r1, r2, …, rk}:
+- f1 = sum of Euclidean route lengths (including depot returns)
+- f2 = sqrt( (1/k) * Σ (len(ri) - mean)^2 )
 
-## Problem & Objectives
-We solve a small CVRP demo instance with:
-- Vehicle capacity Q = 10
-- Customer demands = [3, 4, 7, 2, 5]
-- Up to 3 vehicles (feasible example decomposition):
-	- Route 1: 1 (3) → 2 (4)
-	- Route 2: 3 (7)
-	- Route 3: 4 (2) → 5 (5)
+This encourages low total distance while keeping route workloads similar.
 
-Objectives (both minimized):
-1. Total distance of all routes.
-2. Route distance imbalance measured as the standard deviation of per-route distances (encourages similar route lengths).
+---
+### Instance Format (JSON)
+Instances live in `src/data/instances/`.
 
-Infeasible permutations (capacity violation after optimal DP split) receive large penalty values (1e9, 1e9).
-
-## Algorithms Implemented
-Two MOEAs selectable via `MOEA_ALGORITHM` in `src/constants.py`:
-- `NSGA2`: Fast non-dominated sorting + crowding distance.
-- `VEGA`: Vector Evaluated Genetic Algorithm (objective-specialized selection groups).
-
-Both use permutation-based representation with k-parent (folded) crossover (OX | PMX | ERX) and standard mutations (swap / inversion / insert).
-
-## Key Files
+Customer indices are implicit (1..N). Index 0 is always the depot.
+---
+### Repository Structure (core parts)
 ```text
+run_check.py          # Main entry: loops instances, runs MOEA, saves/prints results
 src/
-	constants.py   # MOEA parameters, demo instance data, algorithm choice
-	moea.py        # Individual class, evaluation, NSGA-II + VEGA loops
-	split.py       # DP capacity-aware splitting (retained)
-	crossover.py   # Crossover operators
-	mutation.py    # Mutation operators
-	distances.py   # Euclidean distances & matrix utilities
-	run_check.py   # Entry point: runs chosen MOEA and prints Pareto front
+	constants.py        # Configuration flags & algorithm parameters
+	instances.py        # JSON parsing -> InstanceData
+	moea.py             # Individual, evaluation, NSGA-II & VEGA loop
+	split.py            # Capacity-aware DP splitting
+	distances.py        # Distance matrix + route length helpers
+	crossover.py        # Crossover operators
+	mutation.py         # Mutation operators + adaptive logic
+	plot_utils.py       # Pareto and route comparison plotting
+	data/instances/*.json
+results/              # Generated plots (Pareto + comparison)
 ```
 
-Removed legacy single-objective modules (`ga.py`, `fitness.py`, `experiments.py`, `metrics.py`).
 
-## Running
+---
+### Quick Start
 ```bash
+## Activate virutal enviorment
+python -m venv .venv
+source .venv/bin/activate  # (macOS / Linux)
+## Download Dependencies
 pip install -r requirements.txt
+## Start project
 python run_check.py
 ```
-Output: a list of non-dominated solutions (permutations) with (total_distance, std_dev) and decoded routes.
 
-Minimal footprint: legacy GA experiment/data/visualization modules and generated CSV results were removed for a lean MOEA core. Only `numpy` remains as a dependency.
+---
+### Configuration (edit `src/constants.py`)
+- `INSTANCE_NAME`: Specific instance name or `ALL`
+- `MOEA_ALGORITHM`: `NSGA2` | `VEGA`
+- `POP_SIZE`, `GENERATIONS`: Evolution scale
+- `PC`, `PM`: Crossover & mutation probabilities (mutation may adapt)
+- `ADAPTIVE_PM`, `PM_FLOOR`: Adaptive mutation scheduling
+- `CROSSOVER_METHOD`: `OX` | `PMX` | `ERX` | `mixed`
+- `MUTATION_METHOD`: `swap` | `inversion` | `insert`
+- `LOCAL_SEARCH_PROB`: Chance to apply 2‑opt per child
+- `ENABLE_PLOT`: Toggle Matplotlib output
+- `OBJECTIVE_BALANCE`: Currently fixed to `std` (standard deviation)
 
-To switch algorithm:
-Edit `MOEA_ALGORITHM` in `src/constants.py` to either `"NSGA2"` or `"VEGA"`.
+---
+### Outputs
+Console (per instance):
+- Header with instance + algorithm
+- Pareto set (objective tuple + permutation + decoded routes summary)
 
-Enable Pareto Plot:
-Set `ENABLE_PLOT = True` in `src/constants.py` (requires `matplotlib`). A scatter of (total distance vs std dev) will appear after the run.
-The plot PNG is saved to `results/pareto_<algorithm>.png`.
+Plots (if `ENABLE_PLOT = True`):
+- Pareto front scatter: distance vs std deviation (saved to `results/pareto_<instance>_<algo>.png`)
+- Route comparison: Best-distance vs best-std individual side-by-side with route counts (`results/routes_compare_<instance>_<algo>.png`)
 
-## Extending
-- Replace the embedded demo instance by loading larger instances (reintroduce JSON + instance loader if needed).
-- Add more objectives (e.g., number of vehicles used, max route length) by extending `evaluate_individual` in `moea.py`.
-- Integrate visualization by adapting previous plotting utilities to multi-objective scatter plots.
+---
+### Interpreting the Pareto Front
+- Lower-left solutions: balanced and short — usually desirable.
+- Near-horizontal spread: trade-offs where distance similar, balance varies.
+- Near-vertical spread: trade-offs where balance similar, distance varies.
+If the front is sparse, increase `POP_SIZE` or `GENERATIONS`, or raise diversity via `mixed` crossover + higher mutation / local search probability.
 
-## License
-Educational / academic use example (no formal license text supplied).
+---
+### Extending
+- Add objective: modify `evaluate_individual` in `moea.py` and adjust dominance logic (tuples auto-expand).
+- Different balance metric: implement coefficient of variation (CV) and toggle with `OBJECTIVE_BALANCE`.
+- Soft capacity penalties: integrate `PENALTY_OVERLOAD_ALPHA` (currently not used—hard infeasible marking is applied instead).
+- Improve VEGA: Add elitism or hybrid NSGA-II replacement stage.
+- Export CSV: Iterate Pareto set and write objective + permutation + route breakdown (not yet implemented).
+
+

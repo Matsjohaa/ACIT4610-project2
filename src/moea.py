@@ -7,8 +7,7 @@ import numpy as np
 from .constants import (
     POP_SIZE, GENERATIONS, PC, PM, PARENTS_K,
     CROSSOVER_METHOD, MUTATION_METHOD, MOEA_ALGORITHM,
-    LOCAL_SEARCH_PROB, ADAPTIVE_PM, PM_FLOOR, PENALTY_OVERLOAD_ALPHA,
-    OBJECTIVE_BALANCE
+    LOCAL_SEARCH_PROB, ADAPTIVE_PM, PM_FLOOR
 )
 from .instances import InstanceData, load_instance
 from .crossover import crossover_dispatch
@@ -43,10 +42,9 @@ def capacity_split(perm: List[int], M: np.ndarray, inst: InstanceData):
 
 
 def evaluate_individual(ind: Individual, M: np.ndarray, inst: InstanceData):
-    # attempt split; manage overload softly
+    # attempt split; infeasible -> large penalty objectives
     try:
         routes = capacity_split(ind.perm, M, inst)
-        overload_penalty = 0.0
     except ValueError:
         ind.objectives = (1e9, 1e9)
         return
@@ -69,8 +67,7 @@ def evaluate_individual(ind: Individual, M: np.ndarray, inst: InstanceData):
         var = sum((x-mean)**2 for x in route_dists)/len(route_dists)
         std_dev = math.sqrt(var)
         cv = std_dev / mean if mean > 0 else 0.0
-    balance_metric = cv if OBJECTIVE_BALANCE == 'cv' else std_dev
-    ind.objectives = (total_dist + overload_penalty, balance_metric)
+    ind.objectives = (total_dist, std_dev)
 
 # =============================
 # Local search (2-opt per route)

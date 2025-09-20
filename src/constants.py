@@ -5,7 +5,7 @@ from pathlib import Path
 # ============================================================
 
 # Instance selection: set to a specific instance (e.g., "small_01") or "ALL" to iterate.
-INSTANCE_NAME: str = "large_01"
+INSTANCE_NAME: str = "large_02"
 
 # Active algorithm: options: "NSGA2", "VEGA"
 MOEA_ALGORITHM: str = "NSGA2"
@@ -48,11 +48,6 @@ PM_FLOOR: float = 0.02
 # Allow mixing multiple crossover operators; if CROSSOVER_METHOD == "mixed" we randomly pick.
 MIXED_CROSSOVERS = ["OX", "PMX", "ERX"]
 
-# Overload penalty coefficient for capacity violation (soft penalty vs. hard infeasible)
-PENALTY_OVERLOAD_ALPHA: float = 50.0
-
-# Balance objective variant: 'std' for standard deviation or 'cv' for coefficient of variation
-# std is default and recommended
-OBJECTIVE_BALANCE: str = "std"
+# (Removed unused soft-penalty coefficient and balance mode toggle for simplicity)
 
 

@@ -1,7 +1,10 @@
 import math
-from typing import Tuple
+from typing import Tuple, List
 import numpy as np
-from .models import Route, Solution, Customer
+
+# Local lightweight type aliases (decoupled from legacy models.py)
+Route = List[int]
+Solution = List[Route]
 
 Point = Tuple[float, float]
 
@@ -13,7 +16,7 @@ def euclid(a: Point, b: Point) -> float:
     return math.hypot(a[0] - b[0], a[1] - b[1])
 
 
-def distance_matrix(depot: tuple[float, float], customers: list[Customer]) -> np.ndarray:
+def distance_matrix(depot: tuple[float, float], customers) -> np.ndarray:
     """
     Build a full symmetric distance matrix for depot + customers.
     Index 0 corresponds to the depot, indices 1..N correspond to customers.

@@ -24,7 +24,10 @@ def load_instance(name: str) -> InstanceData:
 	if not path.exists():
 		raise FileNotFoundError(f"Instance file not found: {path}")
 	with open(path, 'r') as f:
-		data = json.load(f)
+		raw_lines = f.readlines()
+	# Allow // comments at start of file or in-line
+	filtered = '\n'.join(l for l in raw_lines if not l.lstrip().startswith('//'))
+	data = json.loads(filtered)
 	# Schema: depot: [x,y]; customers: list of {x,y,demand}
 	depot = tuple(data['depot'])
 	customers = data['customers']

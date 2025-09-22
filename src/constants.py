@@ -1,7 +1,7 @@
 from pathlib import Path
 
 # Instance selection: set to a specific instance (e.g., "small_01", ...) or "ALL" to iterate.
-INSTANCE_NAME: str = "large_01"
+INSTANCE_NAME: str = "small_01"
 
 # Active algorithm: "NSGA2" or "VEGA"
 MOEA_ALGORITHM: str = "NSGA2"
@@ -11,7 +11,7 @@ POP_SIZE: int = 80
 GENERATIONS: int = 150
 
 # Variation parameters
-PARENTS_K: int = 3               # using permutation-based crossover
+PARENTS_K: int = 2               # using permutation-based crossover
 CROSSOVER_METHOD: str = "OX"     # OX | PMX | ERX | mixed 
 PC: float = 0.9                  # crossover probability
 PM: float = 0.1                  # mutation probability

@@ -1,6 +1,6 @@
 import random
 from typing import List, Sequence
-from .constants import PARENTS_K, CROSSOVER_METHOD
+from .constants import PARENTS_K, CROSSOVER_METHOD, MIXED_CROSSOVERS
 
 
 
@@ -95,14 +95,18 @@ def k_parent_crossover(parents: Sequence[Sequence[int]], rng: random.Random) -> 
     if len(parents) == 1:
         return list(parents[0])
 
-    if CROSSOVER_METHOD == "OX":
+    method = CROSSOVER_METHOD
+    if method == "mixed":
+        method = rng.choice(MIXED_CROSSOVERS)
+
+    if method == "OX":
         op2 = ox_2parent
-    elif CROSSOVER_METHOD == "PMX":
+    elif method == "PMX":
         op2 = pmx_2parent
-    elif CROSSOVER_METHOD == "ERX":
+    elif method == "ERX":
         op2 = erx_2parent
     else:
-        raise ValueError(f"Unknown crossover method: {CROSSOVER_METHOD}")
+        raise ValueError(f"Unknown crossover method: {method}")
 
     child = list(parents[0])
     for p in parents[1:]:

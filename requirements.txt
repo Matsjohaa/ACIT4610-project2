@@ -2,3 +2,7 @@ numpy
 pathlib
 matplotlib
 pandas
+pyarrow>=14.0
+fastparquet>=2024.2.0
+zstandard>=0.22.0    # for 'zstd' compression via fastparquet
+python-snappy>=0.7.0 # for 'snappy' compression via fastparquet

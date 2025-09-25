@@ -1,6 +1,6 @@
 import random
 from typing import List
-from .constants import MUTATION_METHOD
+from constants import MUTATION_METHOD
 
 
 def mutate_swap(perm: List[int], rng: random.Random) -> List[int]:

@@ -1,10 +1,10 @@
 from pathlib import Path
 
 # Instance selection: set to a specific instance (e.g., "small_01", ...) or "ALL" to iterate.
-INSTANCE_NAME: str = "small_01"
+INSTANCE_NAME: str = "large_01"
 
 # Active algorithm: "NSGA2" or "VEGA"
-MOEA_ALGORITHM: str = "NSGA2"
+MOEA_ALGORITHM: str = "VEGA"
 
 # Population size & generations
 POP_SIZE: int = 80

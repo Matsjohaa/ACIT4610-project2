@@ -1,19 +1,26 @@
+from __future__ import annotations
 import random
 from dataclasses import dataclass
 from typing import List, Tuple
 import math
 import numpy as np
+try:
+    from src import constants as C   # when importing as a package (python -m)
+except ImportError:
+    import constants as C
 
-from .constants import (
+from constants import (
     POP_SIZE, GENERATIONS, PC, PM, PARENTS_K,
     CROSSOVER_METHOD, MUTATION_METHOD, MOEA_ALGORITHM,
     LOCAL_SEARCH_PROB, ADAPTIVE_PM, PM_FLOOR
 )
-from .instances import InstanceData, load_instance
-from .crossover import crossover_dispatch
-from .mutation import mutation_dispatch
-from .split import dp_split_capacity
-from .distances import distance_matrix, route_length
+from instances import InstanceData, load_instance
+from crossover import crossover_dispatch
+from mutation import mutation_dispatch
+from split import dp_split_capacity
+from distances import (distance_matrix, route_length)
+
+
 
 # =============================
 # Data structures
@@ -275,6 +282,13 @@ def vega_step(pop: List[Individual], rng: random.Random, M: np.ndarray, inst: In
 # =============================
 
 def run_moea(seed: int = 0, instance: InstanceData | None = None):
+    # print(f"[run_moea] seed arg: {seed!r}")
+    # print(
+    #     f"[run_moea] instance cap={getattr(instance, 'capacity', None)} n_veh={getattr(instance, 'n_vehicles', None)} n_cust={len(getattr(instance, 'demands', []))}")
+    try:
+        seed = int(seed) if seed is not None else int(getattr(C, "SEED", 0))
+    except Exception:
+        seed = 0
     rng = random.Random(seed)
     inst = instance if instance is not None else load_instance('small_01')
     M = build_distance_matrix(inst)

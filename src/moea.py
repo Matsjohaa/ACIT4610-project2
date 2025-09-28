@@ -9,16 +9,16 @@ try:
 except ImportError:
     import constants as C
 
-from constants import (
-    POP_SIZE, GENERATIONS, PC, PM, PARENTS_K,
-    CROSSOVER_METHOD, MUTATION_METHOD, MOEA_ALGORITHM,
-    LOCAL_SEARCH_PROB, ADAPTIVE_PM, PM_FLOOR
-)
-from instances import InstanceData, load_instance
-from crossover import crossover_dispatch
-from mutation import mutation_dispatch
-from split import dp_split_capacity
-from distances import (distance_matrix, route_length)
+# from constants import (
+#     POP_SIZE, GENERATIONS, PC, PM, PARENTS_K,
+#     CROSSOVER_METHOD, MUTATION_METHOD, MOEA_ALGORITHM,
+#     LOCAL_SEARCH_PROB, ADAPTIVE_PM, PM_FLOOR
+# )
+from src.instances import InstanceData, load_instance
+from src.crossover import crossover_dispatch
+from src.mutation import mutation_dispatch
+from src.split import dp_split_capacity
+from src.distances import (distance_matrix, route_length)
 
 
 
@@ -127,7 +127,7 @@ def local_search(ind: Individual, M: np.ndarray, inst: InstanceData):
 def init_population(rng: random.Random, inst: InstanceData) -> List[Individual]:
     base = list(range(1, len(inst.demands) + 1))
     pop: List[Individual] = []
-    for _ in range(POP_SIZE):
+    for _ in range(C.POP_SIZE):
         p = base[:]
         rng.shuffle(p)
         pop.append(Individual(perm=p))
@@ -147,13 +147,13 @@ def tournament(pop: List[Individual], rng: random.Random) -> Individual:
 
 def make_child(parents: List[Individual], rng: random.Random, current_gen: int) -> Individual:
     p_perms = [p.perm for p in parents]
-    child_perm = crossover_dispatch(p_perms, rng) if rng.random() < PC else p_perms[0][:]
+    child_perm = crossover_dispatch(p_perms, rng) if rng.random() < C.PC else p_perms[0][:]
     # adaptive mutation probability
-    if ADAPTIVE_PM:
-        t = current_gen / max(1, GENERATIONS - 1)
-        pm_eff = (PM - PM_FLOOR) * (1 - t) + PM_FLOOR
+    if C.ADAPTIVE_PM:
+        t = current_gen / max(1, C.GENERATIONS - 1)
+        pm_eff = (C.PM - C.PM_FLOOR) * (1 - t) + C.PM_FLOOR
     else:
-        pm_eff = PM
+        pm_eff = C.PM
     if rng.random() < pm_eff:
         mutation_dispatch(child_perm, rng)
     child = Individual(perm=child_perm)
@@ -226,11 +226,11 @@ def crowding_distance(front: List[Individual]):
 def nsga2_step(pop: List[Individual], rng: random.Random, M: np.ndarray, inst: InstanceData, current_gen: int) -> List[Individual]:
     # Variation (binary tournament selection)
     offspring: List[Individual] = []
-    while len(offspring) < POP_SIZE:
-        parents = [tournament(pop, rng) for _ in range(PARENTS_K)]
+    while len(offspring) < C.POP_SIZE:
+        parents = [tournament(pop, rng) for _ in range(C.PARENTS_K)]
         child = make_child(parents, rng, current_gen)
         evaluate_individual(child, M, inst)
-        if rng.random() < LOCAL_SEARCH_PROB:
+        if rng.random() < C.LOCAL_SEARCH_PROB:
             local_search(child, M, inst)
         offspring.append(child)
     # Combine and sort
@@ -239,11 +239,11 @@ def nsga2_step(pop: List[Individual], rng: random.Random, M: np.ndarray, inst: I
     new_pop: List[Individual] = []
     for f in fronts:
         crowding_distance(f)
-        if len(new_pop) + len(f) <= POP_SIZE:
+        if len(new_pop) + len(f) <= C.POP_SIZE:
             new_pop.extend(f)
         else:
             f.sort(key=lambda ind: (-ind.crowding))
-            new_pop.extend(f[:POP_SIZE - len(new_pop)])
+            new_pop.extend(f[:C.POP_SIZE - len(new_pop)])
             break
     return new_pop
 
@@ -254,7 +254,7 @@ def nsga2_step(pop: List[Individual], rng: random.Random, M: np.ndarray, inst: I
 def vega_step(pop: List[Individual], rng: random.Random, M: np.ndarray, inst: InstanceData, current_gen: int) -> List[Individual]:
     # Split pop into sub-populations focusing on one objective each
     k = 2  # number of objectives
-    sub_size = POP_SIZE // k
+    sub_size = C.POP_SIZE // k
     parents_groups = []
     for obj_index in range(k):
         # select based on single objective obj_index
@@ -262,12 +262,12 @@ def vega_step(pop: List[Individual], rng: random.Random, M: np.ndarray, inst: In
         parents_groups.append(sorted_pop[:sub_size])
     # Produce children uniformly
     children: List[Individual] = []
-    while len(children) < POP_SIZE:
+    while len(children) < C.POP_SIZE:
         group = rng.choice(parents_groups)
-        parents = rng.sample(group, min(PARENTS_K, len(group)))
+        parents = rng.sample(group, min(C.PARENTS_K, len(group)))
         child = make_child(parents, rng, current_gen)
         evaluate_individual(child, M, inst)
-        if rng.random() < LOCAL_SEARCH_PROB:
+        if rng.random() < C.LOCAL_SEARCH_PROB:
             local_search(child, M, inst)
         children.append(child)
     # Evaluate crowding/rank for record (not used for selection here)
@@ -300,13 +300,13 @@ def run_moea(seed: int = 0, instance: InstanceData | None = None):
     for f in fronts:
         crowding_distance(f)
 
-    for gen in range(GENERATIONS):
-        if MOEA_ALGORITHM.upper() == 'NSGA2':
+    for gen in range(C.GENERATIONS):
+        if C.MOEA_ALGORITHM.upper() == 'NSGA2':
             pop = nsga2_step(pop, rng, M, inst, gen)
-        elif MOEA_ALGORITHM.upper() == 'VEGA':
+        elif C.MOEA_ALGORITHM.upper() == 'VEGA':
             pop = vega_step(pop, rng, M, inst, gen)
         else:
-            raise ValueError(f"Unknown MOEA_ALGORITHM {MOEA_ALGORITHM}")
+            raise ValueError(f"Unknown MOEA_ALGORITHM {C.MOEA_ALGORITHM}")
     # Final non-dominated set
     fronts = fast_non_dominated_sort(pop)
     pareto = fronts[0]

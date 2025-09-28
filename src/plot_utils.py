@@ -9,7 +9,7 @@ from .instances import InstanceData
 import numpy as np
 
 
-def plot_pareto(pareto: Sequence[Individual], inst: InstanceData, show: bool = False, out_dir: str | Path = "results") -> Path:
+def plot_pareto(pareto: Sequence[Individual], inst: InstanceData, show: bool = False, out_dir: str | Path = "visualisations") -> Path:
     # sort by first objective for line connection to improve readability
     pareto_sorted = sorted(pareto, key=lambda ind: ind.objectives[0])
     xs = [ind.objectives[0] for ind in pareto_sorted]
@@ -33,7 +33,7 @@ def plot_pareto(pareto: Sequence[Individual], inst: InstanceData, show: bool = F
     return file_path
 
 
-def plot_routes(ind: Individual, inst: InstanceData, M: np.ndarray, show: bool = False, out_dir: str | Path = "results", filename: str | None = None) -> Path:
+def plot_routes(ind: Individual, inst: InstanceData, M: np.ndarray, show: bool = False, out_dir: str | Path = "visualisations", filename: str | None = None) -> Path:
     # split routes using provided instance & matrix
     try:
         routes = dp_split_capacity(ind.perm, inst.n_vehicles, M, inst.demands, inst.capacity)
@@ -74,7 +74,7 @@ def plot_routes(ind: Individual, inst: InstanceData, M: np.ndarray, show: bool =
     plt.close(fig)
     return file_path
 
-def plot_route_comparison(best_distance: Individual, best_std: Individual, inst: InstanceData, M: np.ndarray, show: bool=False, out_dir: str | Path = "results") -> Path:
+def plot_route_comparison(best_distance: Individual, best_std: Individual, inst: InstanceData, M: np.ndarray, show: bool=False, out_dir: str | Path = "visualisations") -> Path:
     def _split(ind):
         try:
             return dp_split_capacity(ind.perm, inst.n_vehicles, M, inst.demands, inst.capacity)

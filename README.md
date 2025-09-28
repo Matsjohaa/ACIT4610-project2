@@ -21,18 +21,25 @@ Customer indices are implicit (1..N). Index 0 is always the depot.
 run_check.py          # Main entry: loops instances, runs MOEA, saves/prints results
 src/
 	constants.py        # Configuration flags & algorithm parameters
+	crossover.py        # Crossover operators
+	data_transformer.py # Transforms the output from exp_runner.py to a single file
+	distances.py        # Distance matrix + route length helpers
+	exp_runner.py       # Executes VEGA/NSGA-II across presets/seeds and writes per-run fronts + summaries
 	instances.py        # JSON parsing -> InstanceData
 	moea.py             # Individual, evaluation, NSGA-II & VEGA loop
-	split.py            # Capacity-aware DP splitting
-	distances.py        # Distance matrix + route length helpers
-	crossover.py        # Crossover operators
 	mutation.py         # Mutation operators + adaptive logic
 	plot_utils.py       # Pareto and route comparison plotting
+	score_runs.py       # Computes GD, IGD, HV, and a spread proxy
+	split.py            # Capacity-aware DP splitting
 	data/instances/*.json
-results/              # Generated plots (Pareto + comparison)
+notebooks/              # Generated plots (Pareto + comparison)
 ```
-
-
+### Data generation
+```text
+Results were produced by first running exp_runner.py (executes VEGA/NSGA-II across presets/seeds and writes per-run fronts + summaries), then data_transformer.py to collate the per-instance Parquet fronts into long-form tables for analysis. 
+Re-generating these artifacts is time-consuming (many instances × presets × seeds), so instead of rerunning, use notebooks/visualisation_notebook, which reads the already generated outputs.
+Note: the generated files were moved from their initial locations to src/results for convenience.
+```
 ---
 ### Quick Start
 ```bash

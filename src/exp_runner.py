@@ -5,7 +5,7 @@
 # - Runs VEGA & NSGA-II across presets and seeds
 # - Logs wall time, #evaluations
 # - Computes GD, IGD, Spread (Δ), Hypervolume
-# - Writes Parquet fronts + CSV/LaTeX summaries into ./results
+# - Writes Parquet fronts + CSV/LaTeX summaries into ./visualisations
 from __future__ import annotations
 
 import inspect
@@ -310,7 +310,7 @@ def main():
                     #       f"n_points={len(P)}  first_row={P[0].tolist() if len(P) else 'EMPTY'}")
 
                     # ----- dump this run's front (Parquet) -----
-                    out_front_dir = os.path.join("../results", "fronts", instance_display)
+                    out_front_dir = os.path.join("../visualistaions", "fronts", instance_display)
                     os.makedirs(out_front_dir, exist_ok=True)
                     front_path = os.path.join(out_front_dir, f"{algo.lower()}_{preset_name}_seed{int(seed)}.parquet")
                     if len(P):
@@ -407,7 +407,7 @@ def main():
     runtime.columns = [' '.join(c).strip() if isinstance(c, tuple) else c for c in runtime.columns]
 
     # 5) Save outputs
-    out_dir = "../results"
+    out_dir = "../visualisations"
     os.makedirs(out_dir, exist_ok=True)
     df.to_csv(os.path.join(out_dir, "runs_raw.csv"), index=False)
     agg.to_csv(os.path.join(out_dir, "summary_metrics.csv"), index=False)
@@ -423,7 +423,7 @@ def main():
     with open(os.path.join(out_dir, "runtime_summary.tex"), "w") as f:
         f.write(to_latex(runtime, "Runtime summary (mean$\\pm$std).", "tab:runtime"))
 
-    print("Saved results to:", out_dir)
+    print("Saved visualisations to:", out_dir)
 
 
 if __name__ == "__main__":

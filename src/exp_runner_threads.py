@@ -534,7 +534,6 @@ def main():
     runtime.columns = [' '.join(c).strip() if isinstance(c, tuple) else c for c in runtime.columns]
 
     # 5) Save outputs
-    # results under exp_runner_output/results
     results_dir = (BASE_OUT / "src"/ "results").resolve()
     results_dir.mkdir(parents=True, exist_ok=True)
     df.to_csv(results_dir / "runs_raw.csv", index=False)

@@ -2,19 +2,22 @@ from pathlib import Path
 import pandas as pd
 import re
 
-# --------- CONFIG ---------
+# Root folder containing one subfolder per instance (e.g., ".../fronts/B-n68-k9"),
+# and inside each subfolder Parquet files named like: <algorithm>_<preset>_seed<seed>.parquet
+HERE = Path(__file__).resolve() # only in .py files
+REPO_ROOT = HERE.parents[1]
+BASE_DIR = (REPO_ROOT / "exp_runner_output" / "fronts")
+BASE_DIR = BASE_DIR.resolve()
 
-BASE_DIR = Path("/Users/kristina/Dropbox/Mac/Desktop/ACIT4610-project2/ACIT4610-project2/visualisations/fronts")
 
-
-
+# Map human-readable instance names to size buckets (used for grouping/plots later)
 INSTANCE_TO_SIZE = {
     # small
     "A-n32-k5": "small",
     "A-n36-k5": "small",
     # medium
-    "B-n45-k6": "medium",
-    "B-n57-k7": "medium",
+    "B-n68-k9": "medium",
+    "B-n78-k10": "medium",
     # large
     "E-n101-k14": "large",
     "M-n151-k12": "large",
@@ -23,11 +26,30 @@ INSTANCE_TO_SIZE = {
 ALGORITHMS = {"nsga2", "vega"}  # as given
 PRESETS = {"fast", "balanced", "thorough"}
 
-# filename pattern: <algorithm>_<preset>_seed<seed>.parquet
+# filename pattern: <algorithm>_<preset>_seed<seed>.parquet  (seed is one or more digits)
 FNAME_RE = re.compile(r"^(?P<algorithm>[^_]+)_(?P<preset>[^_]+)_seed(?P<seed>\d{1,})\.parquet$", re.IGNORECASE)
 # --------------------------
 
 def parse_meta_from_filename(fname: str):
+    """
+        Parse algorithm, preset, and seed from a Parquet filename.
+
+        Parameters
+        ----------
+        fname : str
+            Filename like 'nsga2_balanced_seed1005.parquet'.
+
+        Returns
+        -------
+        (alg, preset, seed) : Tuple[str, str, int]
+            alg and preset are lowercased strings validated against ALGORITHMS/PRESETS.
+            seed is an integer.
+
+        Raises
+        ------
+        ValueError
+            If the filename doesn't match the expected pattern or uses unknown tokens.
+    """
     m = FNAME_RE.match(fname)
     if not m:
         raise ValueError(f"Unexpected filename format: {fname}")
@@ -41,6 +63,31 @@ def parse_meta_from_filename(fname: str):
     return alg, preset, seed
 
 def load_front_file(fp: Path, instance_name: str, instance_size: str) -> pd.DataFrame:
+    """
+        Load one front Parquet file and reshape it into a long-form row-per-point DataFrame.
+
+        Parameters
+        ----------
+        fp : Path
+            Full path to a single Parquet file inside an instance folder.
+        instance_name : str
+            The instance subfolder name (e.g., 'B-n68-k9').
+        instance_size : str
+            Size bucket for this instance (e.g., 'medium').
+
+        Returns
+        -------
+        pd.DataFrame
+            Columns:
+            - algorithm, Instance_size, instance_name, preset, seed
+            - f1_distance, f2_balance_std
+            One row per nondominated point stored in the file.
+
+        Raises
+        ------
+        ValueError
+            If required f1/f2 columns are missing in the Parquet file.
+    """
     alg, preset, seed = parse_meta_from_filename(fp.name)
     df = pd.read_parquet(fp)
 
@@ -69,6 +116,28 @@ def load_front_file(fp: Path, instance_name: str, instance_size: str) -> pd.Data
     return out
 
 def build_long_table(base_dir: Path = BASE_DIR) -> pd.DataFrame:
+    """
+        Walk the instance folders and stack all Parquet fronts into one long table.
+
+        Parameters
+        ----------
+        base_dir : Path, default=BASE_DIR
+            Directory containing per-instance subfolders, each with front Parquet files.
+
+        Returns
+        -------
+        pd.DataFrame
+            Long-form table with columns:
+            ['algorithm','Instance_size','instance_name','preset','seed','f1_distance','f2_balance_std'].
+            Duplicate rows (identical points from repeated loads) are removed.
+
+        Raises
+        ------
+        FileNotFoundError
+            If base_dir does not exist.
+        RuntimeError
+            If no parquet files were found or all were invalid.
+    """
     base_dir = Path(base_dir)
     all_rows = []
     if not base_dir.exists():
@@ -101,8 +170,8 @@ def build_long_table(base_dir: Path = BASE_DIR) -> pd.DataFrame:
     return df_long
 
 if __name__ == "__main__":
+    # Build the long table from the expected directory structure
     df = build_long_table(BASE_DIR)# root containing instance subfolders
-
 
     # Save for downstream analysis
     out_dir = Path("results")

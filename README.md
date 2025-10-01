@@ -1,84 +1,68 @@
-## Multi-Objective CVRP (NSGA-II / VEGA)
+# Multi-Objective CVRP (NSGA-II / VEGA)
 
-Multi-objective evolutionary optimization for the Capacitated Vehicle Routing Problem (CVRP) with NSGA-ll and VEGA
-
----
-### Objectives
-For a solution with routes R = {r1, r2, …, rk}:
-- f1 = sum of Euclidean route lengths (including depot returns)
-- f2 = sqrt( (1/k) * Σ (len(ri) - mean)^2 )
-
-This encourages low total distance while keeping route workloads similar.
+Multi-objective evolutionary optimization for the Capacitated Vehicle Routing Problem (CVRP) using NSGA-II and VEGA.  
+Implements two conflicting objectives: minimizing total route distance and promoting fairness among routes.
 
 ---
-### Instance Format (JSON)
-Instances live in `src/data/instances/`.
 
-Customer indices are implicit (1..N). Index 0 is always the depot.
+## Objectives
+
+Given a solution with routes \(R = \{r_1, r_2, …, r_k\}\):
+
+- **f1** = Total distance  
+(Euclidean route lengths including depot returns)
+
+- **f2** = Route balance  
+(standard deviation of route lengths, encouraging similar workloads)
+
+
 ---
-### Repository Structure (core parts)
+
+## Instance Format
+
+- Instances are JSON files in `src/data/instances/`.  
+- Each file contains depot, customers, demands, and capacity (derived from CVRPLIB dataset).
+
+---
+
+## Repository Structure
+
 ```text
-run_check.py          # Main entry: loops instances, runs MOEA, saves/prints results
+run_check.py               # Main entry: loops instances, runs MOEAs, saves/prints results
 src/
-	constants.py        # Configuration flags & algorithm parameters
-	crossover.py        # Crossover operators
-	data_transformer.py # Transforms the output from exp_runner.py to a single file
-	distances.py        # Distance matrix + route length helpers
-	exp_runner.py       # Executes VEGA/NSGA-II across presets/seeds and writes per-run fronts + summaries
-	instances.py        # JSON parsing -> InstanceData
-	moea.py             # Individual, evaluation, NSGA-II & VEGA loop
-	mutation.py         # Mutation operators + adaptive logic
-	plot_utils.py       # Pareto and route comparison plotting
-	score_runs.py       # Computes GD, IGD, HV, and a spread proxy
-	split.py            # Capacity-aware DP splitting
-	data/instances/*.json
-notebooks/              # Generated plots (Pareto + comparison)
-```
-### Data generation
-```text
-Results were produced by first running exp_runner.py (executes VEGA/NSGA-II across presets/seeds and writes per-run fronts + summaries), then data_transformer.py to collate the per-instance Parquet fronts into long-form tables for analysis. 
-Re-generating these artifacts is time-consuming (many instances × presets × seeds), so instead of rerunning, use notebooks/visualisation_notebook, which reads the already generated outputs.
-Note: the generated files were moved from their initial locations to src/results for convenience.
+    constants.py           # Algorithm parameters
+    crossover.py           # Crossover operators
+    data_transformer.py    # Collates experiment outputs
+    distances.py           # Distance matrix + route helpers
+    exp_runner_threads.py  # Runs VEGA/NSGA-II across presets/seeds
+    instances.py           # JSON parsing
+    moea.py                # NSGA-II & VEGA implementation
+    mutation.py            # Mutation operators
+    plot_utils.py          # Pareto and route plotting
+    split.py               # Capacity-aware splitting
+    data/instances/*.json
+notebooks/             # Generated plots and notebooks
 ```
 ---
-### Quick Start
+
+## How to run
+
 ```bash
-## First, activate virutal enviorment...
-
-## Download Dependencies
+# Install dependencies
 pip install -r requirements.txt
-## Start project
-python run_check.py
+
+# 1. Run experiments to produce fronts (This part can be slow – many runs across ALL preset/instances, especially M-n151-k12 is super slow)
+cd src
+python exp_runner_threads.py
+# As alternative, you can download all generated fronts and reports here: https://drive.google.com/drive/folders/1rip-YUq92RbrIoCUQ2KeDxSjmBj_Mt-i?usp=sharing
+# In this case: 
+# 1. Place folders with instance names to exp_runner_output/fronts, 
+# 2. Place runs_raw.csv, runtime_summary.csv and summary_metrics.scv - to src/results
+
+# 2. Collate fronts outputs to produce one output file (in parquet and csv formats)
+cd src
+python data_transformer.py
+
+# 3. Make sure all input files are on their place, explore and visualise in Visualisation_notebook.ipynb file
+cd notebooks
 ```
-
----
-### Configuration (edit `src/constants.py`)
-- `INSTANCE_NAME`: Specific instance name or `ALL`
-- `MOEA_ALGORITHM`: `NSGA2` | `VEGA`
-- `POP_SIZE`, `GENERATIONS`: Evolution scale
-- `PC`, `PM`: Crossover & mutation probabilities (mutation may adapt)
-- `ADAPTIVE_PM`, `PM_FLOOR`: Adaptive mutation scheduling
-- `CROSSOVER_METHOD`: `OX` | `PMX` | `ERX` | `mixed`
-- `MUTATION_METHOD`: `swap` | `inversion` | `insert`
-- `LOCAL_SEARCH_PROB`: Chance to apply 2‑opt per child
-- `ENABLE_PLOT`: Toggle Matplotlib output
-- `OBJECTIVE_BALANCE`: Currently fixed to `std` (standard deviation)
-
----
-### Outputs
-Per instance:
-- Header with instance + algorithm
-- Pareto set (objective tuple + permutation + decoded routes summary)
-
-Plots (if enabled in constants.py):
-- Pareto front scatter: distance vs std deviation (saved to `results/pareto_<instance>_<algo>.png`)
-- Route comparison: Best-distance vs best-std individual side-by-side with route counts (`results/routes_compare_<instance>_<algo>.png`)
-
----
-### Interpreting the Pareto Front
-- Lower-left solutions: balanced and short — usually desirable.
-- Near-horizontal spread: trade-offs where distance similar, balance varies.
-- Near-vertical spread: trade-offs where balance similar, distance varies.
-If the front is sparse, increase `POP_SIZE` or `GENERATIONS`, or raise diversity via `mixed` crossover + higher mutation / local search probability.
-
-

@@ -277,41 +277,44 @@ def vega_step(pop: List[Individual], rng: random.Random, M: np.ndarray, inst: In
         crowding_distance(f)
     return children
 
+def _seed_all(seed: int | None):
+    try:
+        s = int(seed) if seed is not None else int(getattr(C, "SEED", 0))
+    except Exception:
+        s = 0
+    import numpy as np
+    np.random.seed(s % (2**32 - 1))
+    rng = random.Random(s)
+    return rng, s
+
 # =============================
 # Main run function
 # =============================
 
-def run_moea(seed: int = 0, instance: InstanceData | None = None):
-    # print(f"[run_moea] seed arg: {seed!r}")
-    # print(
-    #     f"[run_moea] instance cap={getattr(instance, 'capacity', None)} n_veh={getattr(instance, 'n_vehicles', None)} n_cust={len(getattr(instance, 'demands', []))}")
-    try:
-        seed = int(seed) if seed is not None else int(getattr(C, "SEED", 0))
-    except Exception:
-        seed = 0
-    rng = random.Random(seed)
-    inst = instance if instance is not None else load_instance('small_01')
+def run_moea(seed: int = 0, instance: InstanceData | None = None,
+             algorithm: str | None = None, **kwargs):
+    """Run either NSGA-II or VEGA depending on 'algorithm'."""
+    rng, _ = _seed_all(seed)
+    inst = instance if instance is not None else load_instance("small_01")
     M = build_distance_matrix(inst)
     pop = init_population(rng, inst)
     for ind in pop:
         evaluate_individual(ind, M, inst)
-    # initial ranking for NSGA-II needs rank/crowding
+
+    # initial rank/crowding
     fronts = fast_non_dominated_sort(pop)
     for f in fronts:
         crowding_distance(f)
 
+    algo = (algorithm or getattr(C, "MOEA_ALGORITHM", "NSGA2")).upper()
     for gen in range(C.GENERATIONS):
-        if C.MOEA_ALGORITHM.upper() == 'NSGA2':
+        if algo == "NSGA2":
             pop = nsga2_step(pop, rng, M, inst, gen)
-        elif C.MOEA_ALGORITHM.upper() == 'VEGA':
+        elif algo == "VEGA":
             pop = vega_step(pop, rng, M, inst, gen)
         else:
-            raise ValueError(f"Unknown MOEA_ALGORITHM {C.MOEA_ALGORITHM}")
-    # Final non-dominated set
+            raise ValueError(f"Unknown algorithm: {algo}")
+
     fronts = fast_non_dominated_sort(pop)
     pareto = fronts[0]
     return pareto, M, inst
-
-__all__ = [
-    'Individual', 'run_moea'
-]

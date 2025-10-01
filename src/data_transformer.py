@@ -4,7 +4,7 @@ import re
 
 # Root folder containing one subfolder per instance (e.g., ".../fronts/B-n68-k9"),
 # and inside each subfolder Parquet files named like: <algorithm>_<preset>_seed<seed>.parquet
-HERE = Path(__file__).resolve() # only in .py files
+HERE = Path(__file__).resolve() # only works in .py files
 REPO_ROOT = HERE.parents[1]
 BASE_DIR = (REPO_ROOT / "exp_runner_output" / "fronts")
 BASE_DIR = BASE_DIR.resolve()

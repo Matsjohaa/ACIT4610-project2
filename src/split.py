@@ -1,7 +1,7 @@
 # Decode a permutation into ≤ n_vehicles routes.
 from typing import List, Sequence
 import numpy as np
-from src.constants import SPLIT_METHOD
+from constants import SPLIT_METHOD
 
 INF = 1e100
 

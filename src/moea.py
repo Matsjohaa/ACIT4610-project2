@@ -14,11 +14,11 @@ except ImportError:
 #     CROSSOVER_METHOD, MUTATION_METHOD, MOEA_ALGORITHM,
 #     LOCAL_SEARCH_PROB, ADAPTIVE_PM, PM_FLOOR
 # )
-from src.instances import InstanceData, load_instance
-from src.crossover import crossover_dispatch
-from src.mutation import mutation_dispatch
-from src.split import dp_split_capacity
-from src.distances import (distance_matrix, route_length)
+from instances import InstanceData, load_instance
+from crossover import crossover_dispatch
+from mutation import mutation_dispatch
+from split import dp_split_capacity
+from distances import (distance_matrix, route_length)
 
 
 

@@ -1,6 +1,6 @@
 import random
 from typing import List, Sequence
-from .constants import PARENTS_K, CROSSOVER_METHOD, MIXED_CROSSOVERS
+from src.constants import PARENTS_K, CROSSOVER_METHOD, MIXED_CROSSOVERS
 
 
 

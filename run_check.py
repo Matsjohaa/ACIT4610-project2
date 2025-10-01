@@ -110,11 +110,11 @@ if __name__ == "__main__":
         if ENABLE_PLOT:
             try:
                 from src.plot_utils import plot_pareto, plot_routes, plot_route_comparison
-                pareto_path = plot_pareto(pareto, inst, show=False, out_dir="results")
+                pareto_path = plot_pareto(pareto, inst, show=False, out_dir="visualisations")
                 print(f"Saved Pareto plot to {pareto_path}")
                 best_dist = min(pareto, key=lambda ind: ind.objectives[0])
                 best_std = min(pareto, key=lambda ind: ind.objectives[1])
-                comp_path = plot_route_comparison(best_dist, best_std, inst, M, show=False, out_dir="results")
+                comp_path = plot_route_comparison(best_dist, best_std, inst, M, show=False, out_dir="visualisations")
                 print(f"Saved comparison route plot to {comp_path}")
             except Exception as e:
                 print(f"Plotting failed: {e}")
@@ -131,6 +131,6 @@ if __name__ == "__main__":
 #     demo_ga_with_metrics()
 #     print_rule()
 #     print("Running full experiment batch...")
-#     results = run_experiments()
-#     pd.DataFrame(results).to_csv("experiment_results.csv", index=False)
+#     visualisations = run_experiments()
+#     pd.DataFrame(visualisations).to_csv("experiment_results.csv", index=False)
 #     print("Saved experiment_results.csv")
